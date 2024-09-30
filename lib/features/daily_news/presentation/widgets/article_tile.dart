@@ -4,19 +4,33 @@ import 'package:flutter_clean_arch/features/daily_news/domain/entities/article.d
 
 class ArticleTileWidget extends StatelessWidget {
   final Article? article;
+  final bool? isRemovable;
+  final void Function(Article article)? onRemove;
+  final void Function(Article article)? onArticlePressed;
 
-  const ArticleTileWidget({super.key, this.article});
+  const ArticleTileWidget({
+    super.key,
+    this.article,
+    this.isRemovable = false,
+    this.onRemove,
+    this.onArticlePressed,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      height: MediaQuery.of(context).size.width / 2.2,
-      child: Row(
-        children: [
-          _buildImage(context),
-          _buildTitleAndDescription(context),
-        ],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        height: MediaQuery.of(context).size.width / 2.2,
+        child: Row(
+          children: [
+            _buildImage(context),
+            _buildTitleAndDescription(context),
+            _buildRemovableArea(),
+          ],
+        ),
       ),
     );
   }
@@ -111,5 +125,31 @@ class ArticleTileWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _onTap() {
+    if (onArticlePressed != null) {
+      onArticlePressed!(article!);
+    }
+  }
+
+  Widget _buildRemovableArea() {
+    if (isRemovable!) {
+      return GestureDetector(
+        onTap: () {
+          if (onRemove != null) {
+            onRemove!(article!);
+          }
+        },
+        child: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: Icon(
+            Icons.remove_circle_outline,
+            color: Colors.red,
+          ),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 }
